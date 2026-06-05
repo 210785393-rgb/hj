@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>My Classroom VR - A-Frame Model</title>
+  <!-- 和老师参考文件一致：用 A-Frame 做网页 VR 场景 -->
+  <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+<a-scene
+  background="color: #dfe8ee"
+  renderer="antialias: true; colorManagement: true"
+  vr-mode-ui="enabled: true"
+  device-orientation-permission-ui="enabled: true">
+
+  <!-- ASSETS：复用老师参考包里的模型与贴图 -->
+  <a-assets>
+    <a-asset-item id="chairModel" src="./assets/chair.glb"></a-asset-item>
+    <a-asset-item id="deskModel" src="./assets/desk.glb"></a-asset-item>
+
+    <img id="wallTexture" src="./assets/wall.jpg" />
+    <img id="colorFloorTexture" src="./assets/floorColor.jpg" />
+    <img id="AOFloorTexture" src="./assets/floorAO.jpg" />
+    <img id="roughnessFloorTexture" src="./assets/floorRoughness.jpg" />
+    <img id="metalnessFloorTexture" src="./assets/floorMetalness.jpg" />
+    <img id="normalFloorTexture" src="./assets/floorNormal.jpg" />
+    <img id="displacementlFloorTexture" src="./assets/floorDisplacement.jpg" />
+  </a-assets>
+
+  <!-- LIGHTS -->
+  <a-ambient-light intensity="0.45"></a-ambient-light>
+  <a-directional-light position="-5 8 6" intensity="0.9" color="#ffffff"></a-directional-light>
+  <a-directional-light position="5 6 -4" intensity="0.45" color="#ffffff"></a-directional-light>
+
+  <!-- CAMERA / VR RIG -->
+  <!-- 修正：初始视角放进教室内部，之前 10.5 在后墙外，所以只看见一面白墙 -->
+  <a-entity id="rig" position="0 1.6 8.2">
+    <a-camera look-controls wasd-controls="enabled: true; acceleration: 22">
+      <a-cursor
+        fuse="true"
+        fuse-timeout="1800"
+        geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.026"
+        material="color: white; shader: flat">
+      </a-cursor>
+    </a-camera>
+  </a-entity>
+
+  <!-- 主要教室模型由 script.js 生成 -->
+  <a-entity id="classroomRoot"></a-entity>
+</a-scene>
+
+<script src="script.js"></script>
+</body>
+</html>
