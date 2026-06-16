@@ -17,18 +17,18 @@
   device-orientation-permission-ui="enabled: true">
 
   <!-- ASSETS：复用老师参考包里的模型与贴图 -->
-  <a-assets>
-    <a-asset-item id="chairModel" src="./assets/chair.glb"></a-asset-item>
-    <a-asset-item id="deskModel" src="./assets/desk.glb"></a-asset-item>
+<a-assets>
 
-    <img id="wallTexture" src="./assets/wall.jpg" />
-    <img id="colorFloorTexture" src="./assets/floorColor.jpg" />
-    <img id="AOFloorTexture" src="./assets/floorAO.jpg" />
-    <img id="roughnessFloorTexture" src="./assets/floorRoughness.jpg" />
-    <img id="metalnessFloorTexture" src="./assets/floorMetalness.jpg" />
-    <img id="normalFloorTexture" src="./assets/floorNormal.jpg" />
-    <img id="displacementlFloorTexture" src="./assets/floorDisplacement.jpg" />
-  </a-assets>
+    <a-asset-item id="chairModel" src="./assets/chair.glb"></a-asset-item>
+
+    <video
+        id="lessonVideo"
+        src="./assets/video.mp4"
+        preload="auto"
+        crossorigin="anonymous">
+    </video>
+
+</a-assets>
 
   <!-- LIGHTS -->
   <a-ambient-light intensity="0.45"></a-ambient-light>
@@ -39,6 +39,39 @@
   <!-- 修正：初始视角放进教室内部，之前 10.5 在后墙外，所以只看见一面白墙 -->
   <a-entity id="rig" position="0 1.6 8.2">
     <a-camera look-controls wasd-controls="enabled: true; acceleration: 22">
+      <!-- =========================
+第一视角单手（肉色球 + 黑色棍）
+========================= -->
+
+<a-entity position="0.22 -0.35 -0.65">
+
+  <!-- 肉色手掌（立体球体） -->
+  <a-sphere
+    radius="0.14"
+    color="#f2c9a0"
+    segments-height="32"
+    segments-width="32">
+  </a-sphere>
+
+  <!-- 黑色手柄（穿过球体） -->
+  <a-cylinder
+    position="0 0 -0.35"
+    radius="0.03"
+    height="0.95"
+    color="#000000"
+    rotation="90 0 0">
+  </a-cylinder>
+
+  <!-- 握把加粗部分 -->
+  <a-cylinder
+    position="0 0 -0.78"
+    radius="0.05"
+    height="0.22"
+    color="#111111"
+    rotation="90 0 0">
+  </a-cylinder>
+
+</a-entity>
       <a-cursor
         fuse="true"
         fuse-timeout="1800"

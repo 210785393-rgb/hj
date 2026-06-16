@@ -23,7 +23,70 @@ AFRAME.registerComponent("smooth-teleport", {
 
 window.addEventListener("load", function () {
   const root = document.querySelector("#classroomRoot");
+// =========================
+// 🎓 虚拟老师（新增，不影响原结构）
+// =========================
+function createTeacher() {
+  const teacher = document.createElement("a-entity");
+  teacher.setAttribute("id", "vr-teacher");
+  teacher.setAttribute("position", "2 0 -6");
+  root.appendChild(teacher);
 
+  // 身体
+  const body = document.createElement("a-cylinder");
+  body.setAttribute("position", "0 1.1 0");
+  body.setAttribute("radius", "0.35");
+  body.setAttribute("height", "1.2");
+  body.setAttribute("color", "#4fc3f7");
+  teacher.appendChild(body);
+
+  // 头
+  const head = document.createElement("a-sphere");
+  head.setAttribute("position", "0 2 0");
+  head.setAttribute("radius", "0.32");
+  head.setAttribute("color", "#ffd7b3");
+  teacher.appendChild(head);
+
+  // 左眼
+  const eye1 = document.createElement("a-sphere");
+  eye1.setAttribute("position", "-0.1 2.05 0.28");
+  eye1.setAttribute("radius", "0.05");
+  eye1.setAttribute("color", "#000");
+  teacher.appendChild(eye1);
+
+  // 右眼
+  const eye2 = document.createElement("a-sphere");
+  eye2.setAttribute("position", "0.1 2.05 0.28");
+  eye2.setAttribute("radius", "0.05");
+  eye2.setAttribute("color", "#000");
+  teacher.appendChild(eye2);
+
+  // 光环（科技感）
+  const ring = document.createElement("a-torus");
+  ring.setAttribute("position", "0 2.3 0");
+  ring.setAttribute("radius", "0.6");
+  ring.setAttribute("radius-tubular", "0.04");
+  ring.setAttribute("color", "#00e5ff");
+  ring.setAttribute("rotation", "90 0 0");
+  teacher.appendChild(ring);
+
+  // 漂浮动画
+  teacher.setAttribute("animation", {
+    property: "position",
+    dir: "alternate",
+    dur: 2000,
+    loop: true,
+    to: "2 0.2 -6"
+  });
+
+  // 点击交互
+  teacher.addEventListener("click", () => {
+    alert("🤖 AI虚拟老师：我正在讲解当前课程内容！");
+  });
+}
+
+// 调用创建老师
+createTeacher();
   // -----------------------------
   // Helper functions
   // -----------------------------
@@ -49,6 +112,7 @@ window.addEventListener("load", function () {
       height: size[1],
       depth: size[2]
     };
+
     if (typeof materialOrColor === "string" && materialOrColor.trim().startsWith("material:")) {
       attrs["material"] = materialOrColor.replace(/^material:\s*/, "");
     } else if (typeof materialOrColor === "string" && materialOrColor.trim().startsWith("src:")) {
@@ -154,14 +218,47 @@ window.addEventListener("load", function () {
   // -----------------------------
   // Front wall: projector screen, yellow doors, clock, teacher area
   // -----------------------------
-  box("projector-screen", "0 2.35 -9.88", [3.8, 1.85, 0.06], "#dfe3e7");
+ const screen = add("a-video",{
+  id:"projector-screen",
+  src:"#lessonVideo",
+  position:"0 2.35 -9.8",
+  width:"3.8",
+  height:"1.85"
+});
+const lessonVideo =
+document.querySelector("#lessonVideo");
+
+screen.setAttribute("class","clickable");
+
+screen.addEventListener("click",()=>{
+
+    lessonVideo.play();
+
+});
+
+screen.addEventListener("mouseleave",()=>{
+
+    lessonVideo.pause();
+
+});
   box("screen-top-border", "0 3.3 -9.82", [4.0, 0.06, 0.06], "#111");
   box("screen-bottom-border", "0 1.38 -9.82", [4.0, 0.06, 0.06], "#111");
   text("screen-title", "Part 4.3  App 功能架构", "0 2.45 -9.75", "0 0 0", 3.2, "#6680a0");
 
-  box("left-yellow-door", "-4.1 1.12 -9.86", [0.8, 2.1, 0.08], "#d79b00");
-  box("right-yellow-door", "4.1 1.12 -9.86", [0.8, 2.1, 0.08], "#d79b00");
-  sphere("left-door-handle", "-3.8 1.1 -9.72", 0.06, "#333");
+ const rightDoor = box(
+  "right-yellow-door",
+  "4.1 1.12 -9.86",
+  [0.8, 2.1, 0.08],
+  "#d79b00"
+);
+rightDoor.setAttribute("class", "clickable");
+box(
+  "left-yellow-door",
+  "-4.1 1.12 -9.86",
+  [0.8, 2.1, 0.08],
+  "#d79b00"
+);
+sphere("left-door-handle", "-3.8 1.1 -9.72", 0.06, "#333");
   sphere("right-door-handle", "3.8 1.1 -9.72", 0.06, "#333");
 
   box("teacher-desk-top", "-2.7 0.8 -8.6", [1.8, 0.1, 0.75], "#d9c3a4");
@@ -337,4 +434,644 @@ window.addEventListener("load", function () {
   teleportMarker("teleport-front", -6.8);
 
   text("model-label", "My Classroom VR Model", "0 0.03 9.5", "-90 0 0", 4.5, "#222");
+  // =========================
+  // 自习室场景
+  // =========================
+const studyRoom = document.createElement("a-entity");
+
+studyRoom.setAttribute("id","study-room");
+studyRoom.setAttribute("visible","false");
+
+document.querySelector("a-scene").appendChild(studyRoom);
+box(
+  "testBox",
+  "0 2 -44",
+  [5,5,5],
+  "#ff0000",
+  studyRoom
+);
+add("a-point-light",{
+  position:"0 3 -44",
+  intensity:"3",
+  distance:"40",
+  color:"#ffffff"
+},studyRoom);
+
+add("a-ambient-light",{
+  intensity:"1.2",
+  color:"#ffffff"
+},studyRoom);
+// =====================
+// AI大屏幕
+// =====================
+
+box(
+  "ai-screen",
+  "0 2 -46.5",
+  [4,2,0.05],
+  "#111",
+  studyRoom
+);
+
+text(
+  "ai-screen-text",
+  "AI Learning Center",
+  "0 2 -46.4",
+  "0 0 0",
+  5,
+  "#00ffff"
+);
+
+// =====================
+// 左侧书架
+// =====================
+
+box(
+  "shelf-left",
+  "-5 1.5 -44",
+  [1,3,0.5],
+  "#8b5a2b",
+  studyRoom
+);
+
+for(let i=0;i<20;i++){
+
+  box(
+    "book-left-"+i,
+    `-5 ${0.3+i*0.12} -43.8`,
+    [0.8,0.08,0.2],
+    i%2 ? "#ff5252" : "#42a5f5",
+    studyRoom
+  );
+
+}
+
+// =====================
+// 右侧书架
+// =====================
+
+box(
+  "shelf-right",
+  "5 1.5 -44",
+  [1,3,0.5],
+  "#8b5a2b",
+  studyRoom
+);
+
+for(let i=0;i<20;i++){
+
+  box(
+    "book-right-"+i,
+    `5 ${0.3+i*0.12} -43.8`,
+    [0.8,0.08,0.2],
+    i%2 ? "#66bb6a" : "#ab47bc",
+    studyRoom
+  );
+
+}
+
+// =====================
+// 中央会议桌
+// =====================
+
+box(
+  "big-table",
+  "0 0.8 -41",
+  [5,0.15,2],
+  "#c9a47c",
+  studyRoom
+);
+
+// =====================
+// AI老师
+// =====================
+
+const aiTeacher = add(
+  "a-entity",
+  {
+    id:"ai-teacher-room",
+    position:"0 0 -44"
+  },
+  studyRoom
+);
+
+add(
+  "a-cylinder",
+  {
+    position:"0 1 0",
+    radius:"0.3",
+    height:"1.2",
+    color:"#00e5ff"
+  },
+  aiTeacher
+);
+
+add(
+  "a-sphere",
+  {
+    position:"0 1.9 0",
+    radius:"0.3",
+    color:"#ffd7b3"
+  },
+  aiTeacher
+);
+
+aiTeacher.setAttribute(
+  "animation",
+  "property: position; dir: alternate; dur: 2000; loop: true; to: 0 0.2 -44"
+);
+
+aiTeacher.addEventListener("click",()=>{
+
+  alert("欢迎来到AI自习室");
+
+});
+
+// =====================
+// 电脑
+// =====================
+
+box(
+  "pc-keyboard",
+  "0 0.95 -41",
+  [0.8,0.04,0.5],
+  "#111",
+  studyRoom
+);
+
+box(
+  "pc-screen",
+  "0 1.45 -41.2",
+  [0.8,0.6,0.05],
+  "#222",
+  studyRoom
+);
+
+// =====================
+// 绿植
+// =====================
+
+cylinder(
+  "plant-pot",
+  "-6 0.4 -46",
+  0.3,
+  0.8,
+  "#795548",
+  "0 0 0",
+  studyRoom
+);
+
+sphere(
+  "plant-leaf",
+  "-6 1.4 -46",
+  0.6,
+  "#4caf50",
+  studyRoom
+);
+// =====================
+// 自习室地板
+// =====================
+
+box(
+  "study-floor",
+  "0 0 -40",
+  [14,0.1,14],
+  "#dddddd",
+  studyRoom
+);
+
+// =====================
+// 墙壁
+// =====================
+
+box(
+  "study-back-wall",
+  "0 2 -47",
+  [14,4,0.2],
+  "#ffffff",
+  studyRoom
+);
+
+box(
+  "study-left-wall",
+  "-7 2 -40",
+  [0.2,4,14],
+  "#f5f5f5",
+  studyRoom
+);
+
+box(
+  "study-right-wall",
+  "7 2 -40",
+  [0.2,4,14],
+  "#f5f5f5",
+  studyRoom
+);
+
+// =====================
+// 天花板
+// =====================
+
+box(
+  "study-ceiling",
+  "0 4 -40",
+  [14,0.1,14],
+  "#f8f8f8",
+  studyRoom
+);
+
+// =====================
+// 顶灯
+// =====================
+
+box(
+  "light1",
+  "0 3.8 -40",
+  [4,0.05,0.4],
+  "#ffffff",
+  studyRoom
+);
+
+box(
+  "light2",
+  "0 3.8 -44",
+  [4,0.05,0.4],
+  "#ffffff",
+  studyRoom
+);
+
+// =====================
+// 中央大桌
+// =====================
+
+box(
+  "study-table",
+  "0 0.8 -42",
+  [4,0.12,2],
+  "#c9a47c",
+  studyRoom
+);
+const tableTip = add(
+  "a-text",
+  {
+    value:"AI学习桌",
+    position:"0 2.2 -42",
+    scale:"3 3 3",
+    color:"#ffff00",
+    align:"center",
+    visible:"false"
+  },
+  studyRoom
+);
+// =====================
+// 椅子
+// =====================
+
+for(let i=-1;i<=1;i++){
+
+  box(
+    "chair-seat"+i,
+    `${i*1.2} 0.5 -40.8`,
+    [0.6,0.08,0.6],
+    "#222",
+    studyRoom
+  );
+
+  box(
+    "chair-back"+i,
+    `${i*1.2} 0.9 -41.05`,
+    [0.6,0.7,0.08],
+    "#222",
+    studyRoom
+  );
+
+}
+
+// =====================
+// 图书架
+// =====================
+
+box(
+  "bookshelf",
+  "-5 1.5 -44",
+  [1,3,0.4],
+  "#8b5a2b",
+  studyRoom
+);
+
+for(let i=0;i<18;i++){
+
+  box(
+    "book"+i,
+    `-5 ${0.4+i*0.12} -43.85`,
+    [0.8,0.08,0.2],
+    i%2 ? "#42a5f5" : "#ef5350",
+    studyRoom
+  );
+
+}
+
+// =====================
+// 电脑
+// =====================
+
+box(
+  "pc-base",
+  "0 0.95 -42",
+  [0.7,0.03,0.4],
+  "#111",
+  studyRoom
+);
+
+box(
+  "pc-screen",
+  "0 1.4 -42.2",
+  [0.7,0.5,0.03],
+  "#222",
+  studyRoom
+);
+
+// =====================
+// AI老师
+// =====================
+
+const studyTeacher = add(
+  "a-entity",
+  {
+    id:"study-ai-teacher",
+    position:"4 0 -44"
+  },
+  studyRoom
+);
+const teacherTip = add(
+  "a-plane",
+  {
+    position:"4 3 -44",
+    width:"3",
+    height:"1",
+    color:"#000000",
+    opacity:"0.8",
+    visible:"false"
+  },
+  studyRoom
+);
+
+add(
+  "a-text",
+  {
+    value:"AI虚拟教师\n欢迎学习",
+    position:"0 0 0.01",
+    align:"center",
+    color:"#00ffff",
+    width:"6"
+  },
+  teacherTip
+);
+
+add(
+  "a-cylinder",
+  {
+    position:"0 1 0",
+    radius:"0.3",
+    height:"1.2",
+    color:"#4fc3f7"
+  },
+  studyTeacher
+);
+
+const teacherHead = add(
+  "a-sphere",
+  {
+    position:"0 1.9 0",
+    radius:"0.3",
+    color:"#ffd7b3",
+    class:"clickable"
+  },
+  studyTeacher
+);
+teacherHead.addEventListener("mouseenter",function(){
+
+  teacherTip.setAttribute("visible",true);
+
+});
+
+teacherHead.addEventListener("mouseleave",function(){
+
+  teacherTip.setAttribute("visible",false);
+
+});
+studyTeacher.addEventListener("click",()=>{
+
+  alert("AI老师：欢迎来到自习室");
+
+});
+
+// =====================
+// 标题
+// =====================
+
+text(
+  "study-title",
+  "AI Self Study Room",
+  "0 3 -46",
+  "0 0 0",
+  8,
+  "#333"
+);
+
+// =====================
+// 返回门
+// =====================
+
+// 返回教室书本
+const backDoor = box(
+  "back-door",
+  "0 0.95 -42",
+  [0.8,0.08,0.5],
+  "#c62828",
+  studyRoom
+);
+
+backDoor.setAttribute("class","clickable");
+
+// 白色书页
+box(
+  "book-pages",
+  "0 0.91 -42",
+  [0.76,0.05,0.46],
+  "#ffffff",
+  studyRoom
+);
+
+// 书名
+text(
+  "book-title",
+  "返回教室",
+  "0 1.02 -41.75",
+  "-90 0 0",
+  2,
+  "#ffffff"
+);
+
+// 返回事件
+backDoor.addEventListener("mouseenter", function(){
+
+  studyRoom.setAttribute("visible", false);
+
+  root.setAttribute("visible", true);
+
+  rig.setAttribute(
+    "position",
+    "0 1.6 8.2"
+  );
+
+});
+backDoor.setAttribute("class","clickable");
+backDoor.setAttribute("class","clickable");
+
+backDoor.addEventListener("mouseenter", () => {
+
+  studyRoom.setAttribute("visible", false);
+
+  root.setAttribute("visible", true);
+
+  rig.setAttribute(
+    "position",
+    "0 1.6 8.2"
+  );
+
+});
+box(
+  "study-floor",
+  "0 0 -40",
+  [12, 0.1, 12],
+  "#dddddd",
+  studyRoom
+);
+
+box(
+  "study-wall",
+  "0 2 -46",
+  [12, 4, 0.2],
+  "#ffffff",
+  studyRoom
+);
+
+box(
+  "study-left",
+  "-6 2 -40",
+  [0.2, 4, 12],
+  "#f5f5f5",
+  studyRoom
+);
+
+box(
+  "study-right",
+  "6 2 -40",
+  [0.2, 4, 12],
+  "#f5f5f5",
+  studyRoom
+);
+
+const studyDesk = box(
+  "study-desk",
+  "0 0.8 -42",
+  [3,0.12,1.2],
+  "#c9a47c",
+  studyRoom
+);
+
+const deskTip = add(
+  "a-text",
+  {
+   value:"AI学习桌\n注视开始学习",
+    position:"0 1.6 -42",
+    color:"#00ffff",
+    align:"center",
+    width:"6",
+    visible:"false"
+  },
+  studyRoom
+);
+
+studyDesk.addEventListener("mouseenter", function(){
+
+  deskTip.setAttribute("visible", true);
+
+});
+
+studyDesk.addEventListener("mouseleave", function(){
+
+  deskTip.setAttribute("visible", false);
+
+});
+
+text(
+  "study-text",
+  "Self Study Room",
+  "0 2 -43",
+  "0 0 0",
+  6,
+  "#111"
+);
+
+text(
+  "study-text",
+  "Self Study Room",
+  "0 2 -43",
+  "0 0 0",
+  6,
+  "#111"
+);
+
+// 场景切换
+// =========================
+
+const rig = document.querySelector("#rig");
+
+rightDoor.addEventListener("mouseenter", () => {
+
+  root.setAttribute("visible", false);
+
+  studyRoom.setAttribute("visible", true);
+
+  rig.setAttribute("position","0 1.6 -44");
+
+  rig.setAttribute("rotation","0 180 0");
+
+});
+
+// 返回门
+
+backDoor.addEventListener("mouseenter", () => {
+
+  studyRoom.setAttribute("visible", false);
+
+  root.setAttribute("visible", true);
+
+  rig.setAttribute(
+    "position",
+    "0 1.6 8.2"
+  );
+
+});
+backDoor.addEventListener("mouseenter",()=>{
+
+  studyRoom.setAttribute(
+    "visible",
+    false
+  );
+
+  root.setAttribute(
+    "visible",
+    true
+  );
+
+  rig.setAttribute(
+    "position",
+    "0 1.6 8.2"
+  );
+
+});
+
 });
