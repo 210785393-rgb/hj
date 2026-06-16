@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial‑scale=1">
+    <title>AR演示</title>
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.3/aframe/build/aframe-ar-nft.js"></script>
+</head>
+<body>
+<a-scene arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3;">
+    <!-- 使用默认hiro识别标记 -->
+    <a-marker preset="hiro">
+        <!-- 一个圆锥体建模 -->
+        <a-cone position="0 0.4 0" radius="0.3" height="0.8" color="#ff7878"></a-cone>
+        <!-- 搭配一个立方体 -->
+        <a-box position="0.6 0.3 0" color="#77ccff"></a-box>
+    </a-marker>
+</a-scene>
+</body>
+</html>
