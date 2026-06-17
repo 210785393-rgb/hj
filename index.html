@@ -1,90 +1,1107 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>My Classroom VR - A-Frame Model</title>
-  <!-- 和老师参考文件一致：用 A-Frame 做网页 VR 场景 -->
-  <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Tropical Island</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #canvas {
+            display: block;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .controls h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #00ff88;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .control-group input[type="range"] {
+            width: 150px;
+            cursor: pointer;
+        }
+
+        .control-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.vr-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: white;
+        }
+
+        button.vr-btn:hover {
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 15px 20px;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 12px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            max-width: 250px;
+        }
+
+        .info-panel h3 {
+            color: #00ff88;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-panel ul {
+            list-style: none;
+            color: #ccc;
+            line-height: 1.8;
+        }
+
+        .info-panel li::before {
+            content: '•';
+            color: #00ff88;
+            margin-right: 8px;
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 18px;
+            z-index: 200;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #00ff88;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .camera-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            width: 280px;
+        }
+
+        .camera-panel h3 {
+            color: #00ff88;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 250px;
+            height: 180px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #00ff88;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .detection-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border: 3px solid #ff4444;
+            border-radius: 50%;
+        }
+
+        .detection-arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid #00ff88;
+            transform-origin: center center;
+            display: none;
+        }
+
+        .camera-controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .camera-controls button {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .camera-status {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .camera-status.active {
+            color: #00ff88;
+        }
+
+        .gesture-hint {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #666;
+        }
+    </style>
 </head>
-
 <body>
-<a-scene
-  background="color: #dfe8ee"
-  renderer="antialias: true; colorManagement: true"
-  vr-mode-ui="enabled: true"
-  device-orientation-permission-ui="enabled: true">
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        <div class="loading" id="loading">加载中...</div>
+        
+        <div class="controls" id="controls">
+            <h2>🎮 控制面板</h2>
+            
+            <div class="control-group">
+                <label>旋转速度: <span id="rotation-value">1</span></label>
+                <input type="range" id="rotation-speed" min="0" max="5" step="0.1" value="1">
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="auto-rotate" checked> 自动旋转
+                </label>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="show-wireframe"> 显示网格
+                </label>
+            </div>
+            
+            <div class="control-group">
+                <label>环境光强度: <span id="light-value">1</span></label>
+                <input type="range" id="light-intensity" min="0.1" max="3" step="0.1" value="1">
+            </div>
+            
+            <div class="button-group">
+                <button id="reset-view">重置视角</button>
+                <button id="toggle-camera" class="vr-btn">切换相机</button>
+                <button id="enter-vr" class="vr-btn">🎲 进入VR模式</button>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>💡 操作提示</h3>
+            <ul>
+                <li>鼠标左键拖动: 旋转视角</li>
+                <li>鼠标滚轮: 缩放</li>
+                <li>鼠标右键拖动: 平移</li>
+                <li>点击VR按钮进入VR模式</li>
+                <li>使用摄像头手势控制旋转</li>
+            </ul>
+        </div>
 
-  <!-- ASSETS：复用老师参考包里的模型与贴图 -->
-<a-assets>
+        <div class="camera-panel" id="cameraPanel">
+            <h3>🎥 手势控制</h3>
+            <div class="camera-container">
+                <video id="video" autoplay playsinline></video>
+                <div class="camera-overlay">
+                    <div class="detection-box"></div>
+                    <div class="detection-arrow" id="detectionArrow"></div>
+                </div>
+            </div>
+            <div class="camera-controls">
+                <button id="startCamera">开启摄像头</button>
+                <button id="stopCamera" class="vr-btn">关闭摄像头</button>
+            </div>
+            <div class="camera-status" id="cameraStatus">未连接</div>
+            <div class="gesture-hint">💡 手掌张开=加速旋转 | 拳头=停止</div>
+        </div>
+    </div>
 
-    <a-asset-item id="chairModel" src="./assets/chair.glb"></a-asset-item>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
 
-    <video
-        id="lessonVideo"
-        src="./assets/video.mp4"
-        preload="auto"
-        crossorigin="anonymous">
-    </video>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { VRButton } from 'three/addons/webxr/VRButton.js';
+        import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 
-</a-assets>
+        let scene, camera, renderer, controls;
+        let model, xrController1, xrController2;
+        let isVRMode = false;
+        let autoRotate = true;
+        let rotationSpeed = 1;
+        let grasses = [];
+        let clouds = [];
+        let butterflies = [];
+        let waterPlane = null;
+        let sun = null;
+        let sunGlow = null;
+        let stars = null;
+        let particles = [];
+        let time = 0;
+        
+        let video = null;
+        let videoStream = null;
+        let isCameraActive = false;
+        let gestureRotation = 0;
+        let gestureSpeed = 1;
+        let isFistDetected = false;
+        let canvas2d = null;
+        let ctx = null;
+        let detectionInterval = null;
 
-  <!-- LIGHTS -->
-  <a-ambient-light intensity="0.45"></a-ambient-light>
-  <a-directional-light position="-5 8 6" intensity="0.9" color="#ffffff"></a-directional-light>
-  <a-directional-light position="5 6 -4" intensity="0.45" color="#ffffff"></a-directional-light>
+        const container = document.getElementById('container');
+        const canvas = document.getElementById('canvas');
+        const loading = document.getElementById('loading');
+        const controlsDiv = document.getElementById('controls');
 
-  <!-- CAMERA / VR RIG -->
-  <!-- 修正：初始视角放进教室内部，之前 10.5 在后墙外，所以只看见一面白墙 -->
-  <a-entity id="rig" position="0 1.6 8.2">
-    <a-camera look-controls wasd-controls="enabled: true; acceleration: 22">
-      <!-- =========================
-第一视角单手（肉色球 + 黑色棍）
-========================= -->
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb);
+            
+            const fog = new THREE.Fog(0x87ceeb, 10, 100);
+            scene.fog = fog;
 
-<a-entity position="0.22 -0.35 -0.65">
+            camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(0, 6, 18);
 
-  <!-- 肉色手掌（立体球体） -->
-  <a-sphere
-    radius="0.14"
-    color="#f2c9a0"
-    segments-height="32"
-    segments-width="32">
-  </a-sphere>
+            renderer = new THREE.WebGLRenderer({
+                canvas: canvas,
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.xr.enabled = true;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  <!-- 黑色手柄（穿过球体） -->
-  <a-cylinder
-    position="0 0 -0.35"
-    radius="0.03"
-    height="0.95"
-    color="#000000"
-    rotation="90 0 0">
-  </a-cylinder>
+            const vrButton = VRButton.createButton(renderer);
+            vrButton.style.display = 'none';
+            document.body.appendChild(vrButton);
 
-  <!-- 握把加粗部分 -->
-  <a-cylinder
-    position="0 0 -0.78"
-    radius="0.05"
-    height="0.22"
-    color="#111111"
-    rotation="90 0 0">
-  </a-cylinder>
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 3;
+            controls.maxDistance = 50;
+            controls.maxPolarAngle = Math.PI / 2;
 
-</a-entity>
-      <a-cursor
-        fuse="true"
-        fuse-timeout="1800"
-        geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.026"
-        material="color: white; shader: flat">
-      </a-cursor>
-    </a-camera>
-  </a-entity>
+            createLights();
+            createSkybox();
+            createGround();
+            loadModel();
 
-  <!-- 主要教室模型由 script.js 生成 -->
-  <a-entity id="classroomRoot"></a-entity>
-</a-scene>
+            setupXRControllers();
 
-<script src="script.js"></script>
+            setupEventListeners();
+
+            animate();
+        }
+
+        function createLights() {
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 20, 10);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = 50;
+            directionalLight.shadow.camera.left = -20;
+            directionalLight.shadow.camera.right = 20;
+            directionalLight.shadow.camera.top = 20;
+            directionalLight.shadow.camera.bottom = -20;
+            scene.add(directionalLight);
+
+            const pointLight1 = new THREE.PointLight(0xffffaa, 0.5, 30);
+            pointLight1.position.set(-5, 8, -5);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0xaaffff, 0.3, 30);
+            pointLight2.position.set(5, 8, 5);
+            scene.add(pointLight2);
+        }
+
+        function createSkybox() {
+            const skyGeometry = new THREE.SphereGeometry(500, 64, 64);
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            
+            const gradient = ctx.createLinearGradient(0, 0, 0, 512);
+            gradient.addColorStop(0, '#1a1a4e');
+            gradient.addColorStop(0.3, '#4a90d9');
+            gradient.addColorStop(0.6, '#87ceeb');
+            gradient.addColorStop(0.8, '#b0e0e6');
+            gradient.addColorStop(1, '#e0f7fa');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 512, 512);
+            
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * 512;
+                const y = Math.random() * 256;
+                const size = Math.random() * 2 + 0.5;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.random() * 0.5})`;
+                ctx.fill();
+            }
+            
+            const skyTexture = new THREE.CanvasTexture(canvas);
+            skyTexture.wrapS = THREE.RepeatWrapping;
+            skyTexture.wrapT = THREE.ClampToEdgeWrapping;
+            
+            const skyMaterial = new THREE.MeshBasicMaterial({
+                map: skyTexture,
+                side: THREE.BackSide,
+                transparent: true
+            });
+            
+            const skybox = new THREE.Mesh(skyGeometry, skyMaterial);
+            skybox.rotation.x = Math.PI / 2;
+            scene.add(skybox);
+
+            createSun();
+            createStars();
+        }
+
+        function createSun() {
+            const sunGeometry = new THREE.SphereGeometry(3, 32, 32);
+            const sunMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffaa
+            });
+            sun = new THREE.Mesh(sunGeometry, sunMaterial);
+            sun.position.set(30, 25, 30);
+            scene.add(sun);
+
+            const glowGeometry = new THREE.SphereGeometry(5, 32, 32);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffdd88,
+                transparent: true,
+                opacity: 0.3
+            });
+            sunGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+            sunGlow.position.copy(sun.position);
+            scene.add(sunGlow);
+        }
+
+        function createStars() {
+            const starsGeometry = new THREE.BufferGeometry();
+            const starCount = 500;
+            const positions = new Float32Array(starCount * 3);
+            const opacities = new Float32Array(starCount);
+            
+            for (let i = 0; i < starCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 1000;
+                positions[i + 1] = (Math.random() - 0.5) * 1000;
+                positions[i + 2] = (Math.random() - 0.5) * 1000;
+                opacities[i / 3] = Math.random();
+            }
+            
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starsGeometry.setAttribute('opacity', new THREE.BufferAttribute(opacities, 1));
+            
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.5,
+                transparent: true,
+                opacity: 0.8,
+                vertexColors: false
+            });
+            stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+        }
+
+        function createParticles() {
+            for (let i = 0; i < 20; i++) {
+                const particleGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+                const particleMaterial = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color().setHSL(0.1 + Math.random() * 0.2, 0.8, 0.7),
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+                particle.position.set(
+                    (Math.random() - 0.5) * 50,
+                    0.5 + Math.random() * 10,
+                    (Math.random() - 0.5) * 50
+                );
+                particles.push({
+                    mesh: particle,
+                    speed: 0.01 + Math.random() * 0.02,
+                    offset: Math.random() * Math.PI * 2,
+                    height: particle.position.y
+                });
+                scene.add(particle);
+            }
+        }
+
+        function createGround() {
+            const groundGeometry = new THREE.CircleGeometry(80, 64);
+            const groundMaterial = new THREE.MeshStandardMaterial({
+                color: 0x228b22,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            const sandGeometry = new THREE.CircleGeometry(60, 64);
+            const sandMaterial = new THREE.MeshStandardMaterial({
+                color: 0xf4d03f,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            const sand = new THREE.Mesh(sandGeometry, sandMaterial);
+            sand.rotation.x = -Math.PI / 2;
+            sand.receiveShadow = true;
+            sand.position.y = 0.01;
+            scene.add(sand);
+
+            createWater();
+
+            for (let i = 0; i < 150; i++) {
+                const grassGeometry = new THREE.ConeGeometry(0.08, 0.4, 6);
+                const grassMaterial = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color().setHSL(0.33, 0.6, 0.25 + Math.random() * 0.25),
+                    roughness: 0.7
+                });
+                const grass = new THREE.Mesh(grassGeometry, grassMaterial);
+                const x = (Math.random() - 0.5) * 120;
+                const z = (Math.random() - 0.5) * 120;
+                grass.position.set(x, 0.2, z);
+                grass.rotation.y = Math.random() * Math.PI * 2;
+                grass.scale.y = 0.4 + Math.random() * 0.6;
+                grass.castShadow = true;
+                grasses.push({ mesh: grass, offset: Math.random() * Math.PI * 2, speed: 0.5 + Math.random() * 0.5 });
+                scene.add(grass);
+            }
+
+            createClouds();
+            createButterflies();
+            createParticles();
+        }
+
+        function createWater() {
+            const waterGeometry = new THREE.CircleGeometry(90, 64);
+            const waterMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1e90ff,
+                roughness: 0.3,
+                metalness: 0.1,
+                transparent: true,
+                opacity: 0.8
+            });
+            waterPlane = new THREE.Mesh(waterGeometry, waterMaterial);
+            waterPlane.rotation.x = -Math.PI / 2;
+            waterPlane.receiveShadow = true;
+            waterPlane.position.y = 0.02;
+            scene.add(waterPlane);
+        }
+
+        function createClouds() {
+            for (let i = 0; i < 8; i++) {
+                const cloudGroup = new THREE.Group();
+                const cloudColor = new THREE.Color().setHSL(0.6, 0.1, 0.95 + Math.random() * 0.05);
+                
+                for (let j = 0; j < 3; j++) {
+                    const cloudGeometry = new THREE.SphereGeometry(3 + Math.random() * 2, 16, 16);
+                    const cloudMaterial = new THREE.MeshStandardMaterial({
+                        color: cloudColor,
+                        roughness: 0.1,
+                        metalness: 0
+                    });
+                    const cloudPart = new THREE.Mesh(cloudGeometry, cloudMaterial);
+                    cloudPart.position.set(
+                        (j - 1) * 4 + (Math.random() - 0.5) * 2,
+                        Math.random() * 1,
+                        (Math.random() - 0.5) * 2
+                    );
+                    cloudPart.scale.setScalar(0.8 + Math.random() * 0.4);
+                    cloudGroup.add(cloudPart);
+                }
+                
+                cloudGroup.position.set(
+                    (Math.random() - 0.5) * 140,
+                    15 + Math.random() * 10,
+                    (Math.random() - 0.5) * 140
+                );
+                
+                clouds.push({ 
+                    group: cloudGroup, 
+                    speed: 0.01 + Math.random() * 0.02,
+                    amplitude: 0.5 + Math.random() * 0.5,
+                    offset: Math.random() * Math.PI * 2 
+                });
+                scene.add(cloudGroup);
+            }
+        }
+
+        function createButterflies() {
+            for (let i = 0; i < 12; i++) {
+                const butterflyGroup = new THREE.Group();
+                
+                const wingGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+                const wingMaterial = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color().setHSL(Math.random(), 0.8, 0.6),
+                    roughness: 0.3,
+                    metalness: 0,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
+                leftWing.position.x = -0.2;
+                leftWing.scale.y = 1.5;
+                
+                const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
+                rightWing.position.x = 0.2;
+                rightWing.scale.y = 1.5;
+                
+                const bodyGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.5, 8);
+                const bodyMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x333333,
+                    roughness: 0.5
+                });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                
+                butterflyGroup.add(leftWing, rightWing, body);
+                butterflyGroup.position.set(
+                    (Math.random() - 0.5) * 40,
+                    2 + Math.random() * 8,
+                    (Math.random() - 0.5) * 40
+                );
+                
+                butterflies.push({ 
+                    group: butterflyGroup,
+                    speed: 0.02 + Math.random() * 0.03,
+                    wingSpeed: 3 + Math.random() * 2,
+                    height: butterflyGroup.position.y,
+                    offset: Math.random() * Math.PI * 2 
+                });
+                scene.add(butterflyGroup);
+            }
+        }
+
+        function loadModel() {
+            const loader = new GLTFLoader();
+            
+            loader.load('Stylized Tropical Island.glb', (gltf) => {
+                model = gltf.scene;
+                
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        
+                        if (child.material) {
+                            child.material.roughness = 0.7;
+                            child.material.metalness = 0.1;
+                        }
+                    }
+                });
+                
+                model.scale.set(2, 2, 2);
+                model.position.y = -0.5;
+                
+                scene.add(model);
+                loading.classList.add('hide');
+            }, (xhr) => {
+                const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                loading.textContent = `加载中... ${percent}%`;
+            }, (error) => {
+                console.error('模型加载失败:', error);
+                loading.textContent = '加载失败，请检查文件';
+            });
+        }
+
+        function setupXRControllers() {
+            const controllerModelFactory = new XRControllerModelFactory();
+
+            xrController1 = renderer.xr.getController(0);
+            xrController1.addEventListener('selectstart', onSelectStart);
+            xrController1.addEventListener('selectend', onSelectEnd);
+            scene.add(xrController1);
+
+            const grip1 = renderer.xr.getControllerGrip(0);
+            grip1.add(controllerModelFactory.createControllerModel(grip1));
+            scene.add(grip1);
+
+            xrController2 = renderer.xr.getController(1);
+            xrController2.addEventListener('selectstart', onSelectStart);
+            xrController2.addEventListener('selectend', onSelectEnd);
+            scene.add(xrController2);
+
+            const grip2 = renderer.xr.getControllerGrip(1);
+            grip2.add(controllerModelFactory.createControllerModel(grip2));
+            scene.add(grip2);
+        }
+
+        let isSelecting = false;
+        let raycaster, intersects;
+
+        function onSelectStart(event) {
+            isSelecting = true;
+            const controller = event.target;
+            
+            raycaster = new THREE.Raycaster();
+            const tempMatrix = new THREE.Matrix4();
+            tempMatrix.identity().extractRotation(controller.matrixWorld);
+            raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+            raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+            
+            if (model) {
+                intersects = raycaster.intersectObject(model, true);
+                if (intersects.length > 0) {
+                    const object = intersects[0].object;
+                    object.material.emissive.set(0xff0000);
+                }
+            }
+        }
+
+        function onSelectEnd(event) {
+            isSelecting = false;
+            if (model) {
+                model.traverse((child) => {
+                    if (child.isMesh && child.material) {
+                        child.material.emissive.set(0x000000);
+                    }
+                });
+            }
+        }
+
+        function setupEventListeners() {
+            window.addEventListener('resize', onWindowResize);
+
+            document.getElementById('rotation-speed').addEventListener('input', (e) => {
+                rotationSpeed = parseFloat(e.target.value);
+                document.getElementById('rotation-value').textContent = rotationSpeed;
+            });
+
+            document.getElementById('auto-rotate').addEventListener('change', (e) => {
+                autoRotate = e.target.checked;
+            });
+
+            document.getElementById('show-wireframe').addEventListener('change', (e) => {
+                if (model) {
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.wireframe = e.target.checked;
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('light-intensity').addEventListener('input', (e) => {
+                const intensity = parseFloat(e.target.value);
+                document.getElementById('light-value').textContent = intensity;
+                scene.children.forEach((child) => {
+                    if (child.isDirectionalLight) {
+                        child.intensity = intensity * 0.8;
+                    } else if (child.isAmbientLight) {
+                        child.intensity = intensity * 0.6;
+                    }
+                });
+            });
+
+            document.getElementById('reset-view').addEventListener('click', () => {
+                camera.position.set(0, 6, 18);
+                controls.target.set(0, 0, 0);
+                controls.update();
+            });
+
+            document.getElementById('toggle-camera').addEventListener('click', () => {
+                if (camera.position.y > 4) {
+                    camera.position.set(0, 1.5, 5);
+                    controls.target.set(0, 0, 0);
+                } else {
+                    camera.position.set(0, 6, 18);
+                    controls.target.set(0, 0, 0);
+                }
+                controls.update();
+            });
+
+            document.getElementById('enter-vr').addEventListener('click', () => {
+                if (!isVRMode) {
+                    renderer.xr.setSessionType('immersive-vr');
+                    controls.enabled = false;
+                    controlsDiv.style.display = 'none';
+                    isVRMode = true;
+                }
+            });
+
+            document.getElementById('startCamera').addEventListener('click', startCamera);
+            document.getElementById('stopCamera').addEventListener('click', stopCamera);
+        }
+
+        async function startCamera() {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { width: 250, height: 180, frameRate: 30 } });
+                video = document.getElementById('video');
+                video.srcObject = videoStream;
+                isCameraActive = true;
+                document.getElementById('cameraStatus').textContent = '准备就绪';
+                document.getElementById('cameraStatus').classList.add('active');
+                
+                canvas2d = document.createElement('canvas');
+                canvas2d.width = 250;
+                canvas2d.height = 180;
+                ctx = canvas2d.getContext('2d');
+                
+                if (detectionInterval) {
+                    clearInterval(detectionInterval);
+                }
+                detectionInterval = setInterval(detectGesture, 50);
+            } catch (error) {
+                console.error('摄像头开启失败:', error);
+                document.getElementById('cameraStatus').textContent = '摄像头访问被拒绝';
+                document.getElementById('cameraStatus').classList.remove('active');
+            }
+        }
+
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+            }
+            if (detectionInterval) {
+                clearInterval(detectionInterval);
+                detectionInterval = null;
+            }
+            isCameraActive = false;
+            isFistDetected = false;
+            document.getElementById('cameraStatus').textContent = '未连接';
+            document.getElementById('cameraStatus').classList.remove('active');
+            gestureRotation = 0;
+            gestureSpeed = 0;
+        }
+
+        function detectGesture() {
+            if (!isCameraActive || !video || !ctx) return;
+
+            ctx.drawImage(video, 0, 0, 250, 180);
+            
+            const centerX = 125;
+            const centerY = 90;
+            const detectRadius = 60;
+            
+            let skinPixels = [];
+            let totalX = 0, totalY = 0;
+            let pixelCount = 0;
+            
+            for (let y = centerY - detectRadius; y < centerY + detectRadius; y += 2) {
+                for (let x = centerX - detectRadius; x < centerX + detectRadius; x += 2) {
+                    if (x >= 0 && x < 250 && y >= 0 && y < 180) {
+                        const r = ctx.getImageData(x, y, 1, 1).data[0];
+                        const g = ctx.getImageData(x, y, 1, 1).data[1];
+                        const b = ctx.getImageData(x, y, 1, 1).data[2];
+                        
+                        if (isSkinColor(r, g, b)) {
+                            skinPixels.push({ x, y });
+                            totalX += x;
+                            totalY += y;
+                            pixelCount++;
+                        }
+                    }
+                }
+            }
+
+            if (pixelCount > 40) {
+                const avgX = totalX / pixelCount;
+                const avgY = totalY / pixelCount;
+                
+                let varianceX = 0, varianceY = 0;
+                for (const pixel of skinPixels) {
+                    varianceX += Math.pow(pixel.x - avgX, 2);
+                    varianceY += Math.pow(pixel.y - avgY, 2);
+                }
+                
+                const stdDevX = Math.sqrt(varianceX / pixelCount);
+                const stdDevY = Math.sqrt(varianceY / pixelCount);
+                const avgStdDev = (stdDevX + stdDevY) / 2;
+                
+                const dx = avgX - centerX;
+                const dy = avgY - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+                
+                const isFist = avgStdDev < 18 && pixelCount > 80;
+                
+                if (isFist) {
+                    gestureRotation = 0;
+                    gestureSpeed = 0;
+                    isFistDetected = true;
+                    document.getElementById('cameraStatus').textContent = `✊ 拳头 - 已停止 (紧凑度: ${avgStdDev.toFixed(1)})`;
+                } else {
+                    gestureRotation = angle;
+                    
+                    const spreadRatio = Math.min(avgStdDev / 30, 1);
+                    gestureSpeed = 0.3 + spreadRatio * 2.7;
+                    isFistDetected = false;
+                    
+                    document.getElementById('cameraStatus').textContent = `🖐️ 手掌张开 - 速度: ${gestureSpeed.toFixed(1)} (分散度: ${avgStdDev.toFixed(1)})`;
+                }
+                
+                const arrow = document.getElementById('detectionArrow');
+                if (arrow) {
+                    arrow.style.display = isFist ? 'none' : 'block';
+                    if (!isFist) {
+                        arrow.style.transform = `translate(-50%, -100%) rotate(${angle + Math.PI / 2}rad)`;
+                        arrow.style.borderBottomColor = '#00ff88';
+                    }
+                }
+            } else {
+                gestureRotation = 0;
+                gestureSpeed = 0;
+                isFistDetected = false;
+                document.getElementById('cameraStatus').textContent = '等待手势...';
+                
+                const arrow = document.getElementById('detectionArrow');
+                if (arrow) {
+                    arrow.style.display = 'none';
+                }
+            }
+        }
+
+        function isSkinColor(r, g, b) {
+            if (r < 50 || g < 40 || b < 30) return false;
+            
+            const rNorm = r / 255;
+            const gNorm = g / 255;
+            const bNorm = b / 255;
+            
+            const hasHighR = r > g && r > b;
+            const hasLowB = b < r - 10 && b < g - 5;
+            const ratio = (r - g) / (r + g + b + 1);
+            
+            return hasHighR && hasLowB && ratio > 0.02;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            renderer.setAnimationLoop(render);
+        }
+
+        function render() {
+            time += 0.016;
+
+            if (isCameraActive && model && !isVRMode) {
+                if (isFistDetected) {
+                    model.rotation.y = model.rotation.y;
+                } else if (gestureSpeed > 0) {
+                    const rotationSpeedFactor = gestureRotation * 0.03 * gestureSpeed;
+                    model.rotation.y += rotationSpeedFactor;
+                }
+            } else if (autoRotate && model && !isVRMode && !isCameraActive) {
+                model.rotation.y += 0.005 * rotationSpeed;
+            }
+
+            grasses.forEach((grass) => {
+                grass.mesh.rotation.z = Math.sin(time * grass.speed + grass.offset) * 0.15;
+                grass.mesh.position.x += Math.sin(time * grass.speed * 0.5 + grass.offset) * 0.002;
+            });
+
+            clouds.forEach((cloud) => {
+                cloud.group.position.x += cloud.speed;
+                cloud.group.position.y = cloud.group.position.y + Math.sin(time + cloud.offset) * cloud.amplitude * 0.02;
+                
+                if (cloud.group.position.x > 80) {
+                    cloud.group.position.x = -80;
+                }
+            });
+
+            butterflies.forEach((butterfly) => {
+                butterfly.group.position.x += Math.sin(time * butterfly.speed + butterfly.offset) * 0.05;
+                butterfly.group.position.z += Math.cos(time * butterfly.speed * 0.8 + butterfly.offset) * 0.05;
+                butterfly.group.position.y = butterfly.height + Math.sin(time * 2 + butterfly.offset) * 0.3;
+                butterfly.group.rotation.y += 0.02;
+                
+                const wingFlap = Math.sin(time * butterfly.wingSpeed) * 0.5;
+                const leftWing = butterfly.group.children[0];
+                const rightWing = butterfly.group.children[1];
+                if (leftWing) leftWing.rotation.z = wingFlap;
+                if (rightWing) rightWing.rotation.z = -wingFlap;
+            });
+
+            if (waterPlane) {
+                waterPlane.material.opacity = 0.75 + Math.sin(time * 2) * 0.05;
+                waterPlane.rotation.z = Math.sin(time * 0.5) * 0.01;
+            }
+
+            if (sun) {
+                sun.scale.setScalar(1 + Math.sin(time * 3) * 0.02);
+            }
+            
+            if (sunGlow) {
+                sunGlow.material.opacity = 0.25 + Math.sin(time * 2) * 0.1;
+                sunGlow.scale.setScalar(1 + Math.sin(time * 2) * 0.1);
+            }
+
+            if (stars) {
+                stars.rotation.y += 0.0002;
+                const opacities = stars.geometry.attributes.opacity.array;
+                for (let i = 0; i < opacities.length; i++) {
+                    opacities[i] = 0.3 + Math.sin(time * 2 + i * 0.1) * 0.5;
+                }
+                stars.geometry.attributes.opacity.needsUpdate = true;
+            }
+
+            particles.forEach((particle) => {
+                particle.mesh.position.y = particle.height + Math.sin(time * particle.speed + particle.offset) * 0.5;
+                particle.mesh.position.x += Math.cos(time * particle.speed + particle.offset) * 0.02;
+                particle.mesh.rotation.y += 0.02;
+                
+                const opacity = 0.5 + Math.sin(time * 2 + particle.offset) * 0.3;
+                particle.mesh.material.opacity = opacity;
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
 </body>
 </html>
